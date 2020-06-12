@@ -36,6 +36,6 @@ find / -type f -exec ls -alh 2>/dev/null --block-size=M {} \; | sort -hr -k5 | h
 # To display the 10 largest regular files first make our own to title after setuid and setgid files and then use find command to
 # generate the list, ignore the errors by redirecting them to /dev/null
 # For converting size in MB we need block size and ls command will implement by {} \; 
-# sorting for 5th column by using sort command, after displays 10 files use awk command to display the desired outputs i.efile name,
+# sorting for 5th column by using sort command, after displays 10 files use awk command to display the desired outputs i.e file name,
 # owner and size in MB.
 echo ""
