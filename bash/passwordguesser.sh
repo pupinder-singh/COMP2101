@@ -9,47 +9,7 @@
 # TASK 3: Improve it by giving them 5 tries to get it right before failing
 #           *** Do not use the exit command, and do not use a loop (e.g. while or for)
 
-successful="You found the secret."
-failure="It's not what we're looking for. Try again."
-referenceString="123456789" # For assigning password, generate a variale. 
-read -s -p "Guess The Password:" myString # For password, acuqire userinput and store it in $myString
-echo
-# To examine the authentication of input or not equating it with $referenceString, use if-else command five times
-if [ $myString = $referenceString ]; then 
-  echo "$successful"
-  echo
-else
-  echo "$failure"
-  read -s -p "Guess the password:" myString
-if [ $myString = $referenceString ]; then
-  echo "$successful"
-  echo
-else
-  echo
-  echo "$failure"
-  read -s -p "Guess the password:" myString
-if [ $myString = $referenceString ]; then
-  echo "$successful"
-  echo
-else
-  echo
-  echo "$failure"
-  read -s -p "Guess the password:" myString
-if [ $myString = $referenceString ]; then
-  echo "$successful"
-  echo
-else
-  echo
-  echo "$failure"
-  read -s -p "Guess the password:" myString
-if [ $myString = $referenceString ]; then
-  echo "$successful"
-  echo
-else
-  echo
-  echo "Failed attempt.."
-fi
-fi
-fi
-fi
-fi
+myString="TestString"
+referenceString="password"
+
+[ $myString = $referenceString ] && echo "Correct!" || echo "Incorrect."

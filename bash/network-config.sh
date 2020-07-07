@@ -14,6 +14,27 @@
 #         in the output section at the end of the script. If the commands included in this script
 #         don't make sense to you, feel free to create your own commands to find your ip addresses,
 #         host names, etc.
+#
+# For example
+#   In the part of the script that prints the report, the commands to generate the data are mixed in with the literal text output
+#   To separate it and make it easier to read, we should take those commands and put them before the output generation, in their own section that generates the data and saves it in variables
+#   Then we can just use those variables in our output section and it will be easier to read, understand, extend and debug
+#
+#   So a line in the output that looks like
+#
+#       echo "label: $(cmd1 $(cmd2)|cmd3)"
+#
+#   could be rewitten like this
+#
+#       # Data Collection/Generation Section
+#       dataforcmd1=$(cmd2)
+#       outputofcmd1=$(cmd1 $dataforcmd1|cmd3)
+#
+#       # Output Formatting/Delivery Section
+#       echo "label: $outputofcmd1"
+#
+#   Your variable names should be sensible names that describe what is in them
+#   Taking complex commands and splitting them into separate simpler pieces makes them easier to read, understand, debug, and extend or modify
 
 # Task 2: Add variables for the default router's name and IP address.
 #         Add a name for the router's IP address to your /etc/hosts file.
@@ -29,26 +50,36 @@
 # the LAN name is looked up using the LAN address in case it is different from the system name
 # finding external information relies on curl being installed and relies on live internet connection
 # awk is used to extract only the data we want displayed from the commands which produce extra data
-# this command is ugly done this way, so generating the output data into variables is recommended to make the script more readable.
-# e.g. 
-#   interface_name=$(ip a |awk '/: e/{gsub(/:/,"");print $2}')
-
-myhostname=$(hostname) #hostname save
-interface_name=$(ip a |awk '/: e/{gsub(/:/,"");print $2}') # Get interface name by using this.
-lan_address=$(ip a s $interface_name|awk '/inet /{gsub(/\/.*/,"");print $2}') # Also get a lan address
-lan_hostname=$(getent hosts $(ip a s $interface_name)|awk '/inet /{gsub(/\/.*/,"");print $2}' | awk '{print $2}') # By using getent hosts and variable $lan_address, get lan hostname
-external_ip=$(curl -s icanhazip.com) # From curl, get external IP address
-external_name=$(getent hosts $external_ip| awk '{print $2}') # Check in hosts file by $external_ip for external ip
-router_address=$(ip r s default| cut -d ' ' -f 3) # By using this, obtain a default router address
-router_hostname=$(getent hosts $router_address|awk '{print $2}') # Apply getent hosts and $router_address for obtaining router hostname 
+# to find out what the ugly commands here are doing, try running them in smaller, simpler pieces
+# e.g. These are 2 of the ugly lines
+#
+#   External IP     : $(curl -s icanhazip.com)
+#   External Name   : $(getent hosts $(curl -s icanhazip.com) | awk '{print $2}')
+#
+#    to figure out what it is doing, try the command pipeline in the innermost parentheses separately in a terminal window
+#
+#   curl -s icanhazip.com
+#
+#    and you would find it gives you your external ip address, so rewrite it to generate and save the data in a variable
+#    then use the variable in any command that needs that data
+#
+#   myExternalIP=$(curl -s icanhazip.com)
+#
+#    then use the variable in any command that needs that data (that had that command pipeline in parentheses)
+#
+#   myExternalName=$(getent hosts $myExternalIP | awk '{print $2}')
+#
+#    this makes the command to generate your external name much easier to read and understand
+#    now you can use the variables you just created in your output section later in the script
+#
+#   External IP     : $myExternalIP
+#   External Name   : $myExternalName
 
 cat <<EOF
-Hostname        : $myhostname
-LAN Address     : $lan_address
-LAN Hostname    : $lan_hostname
-External IP     : $external_ip
-External Name   : $external_name
-Router Address  : $router_address
-Router Hostname : $router_hostname
+Hostname        : $(hostname)
+LAN Address     : $(ip a s $(ip a |awk '/: e/{gsub(/:/,"");print $2}')|awk '/inet /{gsub(/\/.*/,"");print $2}')
+LAN Hostname    : $(getent hosts $(ip a s $(ip a |awk '/: e/{gsub(/:/,"");print $2}')|awk '/inet /{gsub(/\/.*/,"");print $2}')| awk '{print $2}')
+External IP     : $(curl -s icanhazip.com)
+External Name   : $(getent hosts $(curl -s icanhazip.com) | awk '{print $2}')
 EOF
 
